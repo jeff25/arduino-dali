@@ -196,37 +196,60 @@ void DaliBusClass::timerISR() {
       break;
     case RX_START:
     case RX_BIT:
-      if (busIdleCount > 3) // bus has been inactive for too long
+    if (busIdleCount > 3) // bus has been inactive for too long
+    {
+      busState = IDLE; // rx has been interrupted, bus is idle
+      if (rxLength > 16)
       {
-        busState = IDLE;    // rx has been interrupted, bus is idle
-        if(rxLength > 16)
+        if (receivedCallback != 0)
         {
-          if(receivedCallback != 0)
+          uint8_t bitlen = (rxLength - (rxLength % 2)) / 2;
+          uint8_t *data = new uint8_t[3]; // Allocate 3 bytes for safety.
+
+          if (bitlen == 25)
           {
-            uint8_t bitlen = (rxLength - (rxLength % 2)) / 2;
-            uint8_t *data = new uint8_t[3];
-            if(bitlen == 25) {
-              uint8_t temp = rxCommand & 0xFF;
-              rxCommand = (rxCommand >> 1) & 0xFFFF;
-              rxCommand |= temp;
-            }
-            uint8_t offset = bitlen - 8;
-            data[0] = (rxCommand >> offset) & 0xFF;
-            offset -= 8;
-            if(offset != 0) {
-              data[1] = (rxCommand >> offset) & 0xFF;
-              offset -= 8;
-            }
-            if(offset != 0) {
-              data[2] = (rxCommand >> offset) & 0xFF;
-              offset -= 8;
-            }
-            receivedCallback(data, bitlen);
-            delete[] data;
+            uint8_t temp = rxCommand & 0xFF;
+            rxCommand = (rxCommand >> 1) & 0xFFFF;
+            rxCommand |= temp;
           }
+
+          // Extract bytes from rxCommand
+          uint8_t offset = bitlen - 8; // Start with bitlen - 8 for the first byte
+
+          // Extract the first byte (always available if bitlen >= 16)
+          data[0] = (rxCommand >> offset) & 0xFF;
+
+          // Decrease offset and extract the second byte if bitlen >= 16
+          offset -= 8;
+          if (bitlen >= 16)
+          {
+            data[1] = (rxCommand >> offset) & 0xFF;
+          }
+          else
+          {
+            data[1] = 0; // Clear the second byte if it's not present
+          }
+
+          // Decrease offset and extract the third byte if bitlen >= 24
+          offset -= 8;
+          if (bitlen >= 24)
+          {
+            data[2] = (rxCommand >> offset) & 0xFF;
+          }
+          else
+          {
+            data[2] = 0; // Clear the third byte if it's not present
+          }
+
+          // Call the callback with the data and bit length
+          receivedCallback(data, bitlen);
+
+          // Cleanup: If you don't free the memory in the callback, free it here
+          delete[] data;
         }
       }
-      break;
+    }
+    break;
   }
 }
 
