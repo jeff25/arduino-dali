@@ -1,8 +1,8 @@
 #include "DaliTimer.h"
 
-DALITimer::DALITimer(int timerId) : timer(timerId) {}
+DaliTimer::DaliTimer(int timerId) : timer(timerId) {}
 
-void DALITimer::attachInterrupt(uint32_t interval, const std::function<void()>& isr) {
+void DaliTimer::attachInterrupt(uint32_t interval, const std::function<void()>& isr) {
   #if defined(ARDUINO_ARCH_RP2040)
   timer.attachInterrupt(interval, [isr](repeating_timer *t) -> bool {
     isr();
@@ -21,6 +21,6 @@ void DALITimer::attachInterrupt(uint32_t interval, const std::function<void()>& 
   #endif
 }
 
-void DALITimer::restartTimer() {
+void DaliTimer::restartTimer() {
   timer.restartTimer();
 }

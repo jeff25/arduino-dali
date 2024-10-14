@@ -6,7 +6,7 @@
 #if defined(ARDUINO_ARCH_RP2040)
 #include "RPI_PICO_Timer.h"
 #elif defined(ARDUINO_ARCH_ESP32)
-#include "ESP32Timer.h"
+#include "TimerInterrupt_Generic.h"
 #elif defined(ARDUINO_ARCH_ESP8266)
 #include "ESP8266Timer.h"
 #elif defined(ARDUINO_ARCH_AVR)
@@ -15,7 +15,7 @@
 #include "ITimer3.h"
 #endif
 
-class DALITimer {
+class DaliTimer {
 public:
   #if defined(ARDUINO_ARCH_RP2040)
   RPI_PICO_Timer timer;
@@ -33,7 +33,7 @@ public:
   #endif
   #endif
 
-  DALITimer(int timerId);
+  DaliTimer(int timerId);
 
   void attachInterrupt(uint32_t interval, const std::function<void()>& isr);
 
