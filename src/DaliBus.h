@@ -29,32 +29,6 @@
 
 #include "Arduino.h"
 
-#include "DaliTimer.h"
-
-#include "TimerInterrupt_Generic.h"
-
-#ifndef DALI_NO_TIMER
-  #ifndef DALI_TIMER
-    #warning DALI_TIMER not set; default will be set (0)
-    #define DALI_TIMER 0
-  #endif
-  #ifdef ARDUINO_ARCH_RP2040
-  #if DALI_TIMER < 0 || DALI_TIMER > 3
-    #error TIMER has invalid value (valid values: 0-3)
-  #endif
-  #elif defined(ARDUINO_ARCH_ESP32) || defined(ARDUINO_ARCH_ESP8266)
-  #if DALI_TIMER < 0 || DALI_TIMER > 1
-    #error TIMER has invalid value (valid values: 0-1)
-  #endif
-  #elif defined(ARDUINO_ARCH_AVR)
-  #if DALI_TIMER < 1 || DALI_TIMER > 3
-    #error TIMER has invalid value (valid values: 1-3)
-  #endif
-  #endif
-#else
-  #warning DALI_TIMER not set; make sure to call DaliBusClass::timerISR
-#endif
-
 const int DALI_BAUD = 1200;
 const unsigned long DALI_TE = 417;
 const unsigned long DALI_TE_MIN = ( 80 * DALI_TE) / 100;                 // 333us
@@ -98,8 +72,6 @@ typedef void (*EventHandlerErrorFuncPtr)(daliReturnValue errorCode);
 
 class DaliBusClass {
   public:
-    DaliBusClass(int timerId);
-
     void begin(byte tx_pin, byte rx_pin, bool active_low = true);
     daliReturnValue sendRaw(const byte * message, uint8_t bits);
 
@@ -137,7 +109,7 @@ class DaliBusClass {
     bool activeLow;
     byte txMessage[4];
     uint8_t txLength;
-    DaliTimer timer;
+    hw_timer_t* timer;
 
     enum busStateEnum {
       TX_START_1ST, TX_START_2ND,

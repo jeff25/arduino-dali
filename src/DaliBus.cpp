@@ -16,37 +16,19 @@
 */
 
 #include "DaliBus.h"
+#include "esp_system.h"
+#include "rom/ets_sys.h"
 
-#ifdef DALI_TIMER
-#if defined(ARDUINO_ARCH_RP2040)
-void __isr __time_critical_func(DaliBus_wrapper_pinchangeISR)() { DaliBus.pinchangeISR(); }
-#elif defined(ARDUINO_ARCH_ESP32)
-void IRAM_ATTR DaliBus_wrapper_pinchangeISR(void* arg) {
+void DaliBus_wrapper_pinchangeISR(void* arg) {
   DaliBusClass* bus = reinterpret_cast<DaliBusClass*>(arg);
-  bus->pinchangeISR();
-}
-#elif defined(ARDUINO_ARCH_ESP8266)
-void IRAM_ATTR DaliBus_wrapper_pinchangeISR(void* arg) {
-
-  DaliBusClass* bus = reinterpret_cast<DaliBusClass*>(arg);
-  bus->pinchangeISR();
-}
-#elif defined(ARDUINO_ARCH_AVR)
-void DaliBus_wrapper_pinchangeISR(void* arg) {  
-  DaliBusClass* bus = reinterpret_cast<DaliBusClass*>(arg);
-  bus->pinchangeISR();
-}
-#endif
-#endif
-
-DaliBusClass::DaliBusClass(int timerId): timer(timerId) {
-  
 }
 
 void DaliBusClass::begin(byte tx_pin, byte rx_pin, bool active_low) {
   txPin = tx_pin;
   rxPin = rx_pin;
   activeLow = active_low;
+
+  timer = timerBegin(10000000);
 
   // init bus state
   busState = IDLE;
@@ -60,7 +42,8 @@ void DaliBusClass::begin(byte tx_pin, byte rx_pin, bool active_low) {
 
   attachInterruptArg(digitalPinToInterrupt(rxPin), DaliBus_wrapper_pinchangeISR, this, CHANGE);
 
-  this->timer.attachInterrupt(DALI_TE, [this]() {
+  timerAttachInterruptArd
+  attachInterrupt(DALI_TE, [this]() {
     this->timerISR();
   });
 }
