@@ -241,7 +241,7 @@ void DaliBusClass::pinchangeISR() {
       if(errorCallback != 0)
         errorCallback(DALI_COLLISION);
       #ifdef DALI_TIMER
-      timer2.restartTimer();
+      timer.restartTimer();
       #endif
       busState = IDLE;	               // stop transmission
     }
@@ -260,7 +260,7 @@ void DaliBusClass::pinchangeISR() {
       if (busLevel == LOW) { // start of rx frame
         //Timer1.restart();    // sync timer
         #ifdef DALI_TIMER
-        timer2.restartTimer();
+        timer.restartTimer();
         #endif
         busState = RX_START;
         rxIsResponse = true;
@@ -322,5 +322,3 @@ void DaliBusClass::pinchangeISR() {
       break;  // ignore, we didn't expect rx
   }
 }
-
-DaliBusClass DaliBus;
