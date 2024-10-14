@@ -41,7 +41,7 @@
 #ifndef DALI_H
 #define DALI_H
 
-#include <arduino.h>
+#include <Arduino.h>
 #include "DaliBus.h"
 #include "DaliCommands.h"
 
