@@ -21,6 +21,13 @@
 
 void DaliBus_wrapper_pinchangeISR(void* arg) {
   DaliBusClass* bus = reinterpret_cast<DaliBusClass*>(arg);
+  bus->pinchangeISR();
+}
+
+
+void DaliBus_wrapper_timerInterrupt(void* arg) {
+  DaliBusClass* bus = reinterpret_cast<DaliBusClass*>(arg);
+  bus->timerISR();
 }
 
 void DaliBusClass::begin(byte tx_pin, byte rx_pin, bool active_low) {
@@ -42,10 +49,7 @@ void DaliBusClass::begin(byte tx_pin, byte rx_pin, bool active_low) {
 
   attachInterruptArg(digitalPinToInterrupt(rxPin), DaliBus_wrapper_pinchangeISR, this, CHANGE);
 
-  timerAttachInterruptArd
-  attachInterrupt(DALI_TE, [this]() {
-    this->timerISR();
-  });
+  timerAttachInterruptArg(timer, DaliBus_wrapper_timerInterrupt, this);
 }
 
 daliReturnValue DaliBusClass::sendRaw(const byte * message, uint8_t bits) {
@@ -244,9 +248,8 @@ void DaliBusClass::pinchangeISR() {
       txCollision = 1;	           // signal collision
       if(errorCallback != 0)
         errorCallback(DALI_COLLISION);
-      #ifdef DALI_TIMER
-      timer.restartTimer();
-      #endif
+
+      timerRestart(timer);
       busState = IDLE;	               // stop transmission
     }
 #endif
@@ -263,9 +266,7 @@ void DaliBusClass::pinchangeISR() {
     case WAIT_RX:
       if (busLevel == LOW) { // start of rx frame
         //Timer1.restart();    // sync timer
-        #ifdef DALI_TIMER
-        timer.restartTimer();
-        #endif
+        timerRestart(timer);
         busState = RX_START;
         rxIsResponse = true;
       } else {
