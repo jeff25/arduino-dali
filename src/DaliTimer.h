@@ -3,6 +3,8 @@
 #include <cstdint>
 #include <functional>
 
+#include <Arduino.h>
+
 #if defined(ARDUINO_ARCH_RP2040)
 #include "RPI_PICO_Timer.h"
 #elif defined(ARDUINO_ARCH_ESP32)
