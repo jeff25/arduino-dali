@@ -50,6 +50,8 @@ void DaliBusClass::begin(byte tx_pin, byte rx_pin, bool active_low) {
   attachInterruptArg(digitalPinToInterrupt(rxPin), DaliBus_wrapper_pinchangeISR, this, CHANGE);
 
   timerAttachInterruptArg(timer, DaliBus_wrapper_timerInterrupt, this);
+  timerAlarm(timer, 2398, true, 0);
+  timerStart(timer);
 }
 
 daliReturnValue DaliBusClass::sendRaw(const byte * message, uint8_t bits) {
