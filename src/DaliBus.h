@@ -29,6 +29,8 @@
 
 #include "Arduino.h"
 
+#include <soc/gpio_struct.h>
+
 const int DALI_BAUD = 1200;
 const unsigned long DALI_TE = 417;
 const unsigned long DALI_TE_MIN = ( 80 * DALI_TE) / 100;                 // 333us
