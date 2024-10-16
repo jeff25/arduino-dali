@@ -50,6 +50,11 @@
  */
 class DaliClass {
   public:
+    DaliBusClass& bus;
+
+    inline DaliClass(DaliBusClass& bus): bus(bus) {
+    }
+
     /** Start the DALI bus
       * @param tx_pin       Pin to use for transmission
       * @param rx_pin       Pin to use for reception. Must support Pin Change Interrupt.
@@ -190,10 +195,5 @@ class DaliClass {
     /** Prepares a byte array for sending DALI Special Commands */
     byte * prepareSpecialCmd(byte * message, word command, byte value);
 };
-
-/** Dali class instance for main usage (seems to be common Arduino Library style) */
-#ifndef DALI_DONT_EXPORT
-extern DaliClass Dali;
-#endif
 
 #endif // DALI_H
